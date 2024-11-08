@@ -7,6 +7,7 @@ const DEMO_GUEST_PATH: &str = "./demo-guest";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    env_logger::init();
     // Warm up the sandbox pool
     hyperlight::warm_up_pool().await;
 
