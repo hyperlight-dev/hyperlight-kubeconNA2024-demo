@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-hyperlight-common = { version = "0.8.0", default-features = false }
-hyperlight-guest = "0.8.0"
-hyperlight-guest-bin = "0.8.0"
+hyperlight-common = { version = "0.15.0", default-features = false }
+hyperlight-guest = "0.15.0"
+hyperlight-guest-bin = "0.15.0"
 
 [profile.release]
 debug = true
