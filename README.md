@@ -40,7 +40,7 @@ returning it to the warm pool.
 
 # Prerequisites
 
-- Rust 1.94 (pinned via `rust-toolchain.toml`, matching Hyperlight 0.18.0)
+- Rust 1.94 (pinned via `rust-toolchain.toml`)
 - `cargo-hyperlight`: install with `cargo install cargo-hyperlight`
 
 # How to run?
