@@ -27,6 +27,10 @@ executes functions.
     - `PrintOutput`, and
     - `DereferenceRawNullPointer`.
 
+The null-pointer demo uses an explicit x86-64 memory read so release optimization
+cannot remove the fault. The host discards the faulted sandbox rather than
+returning it to the warm pool.
+
 > Note: OS-less VMs cannot make any syscalls, so we escape the VM to make _host function calls_ to, say,
 > print to standard output.
 
@@ -36,10 +40,13 @@ executes functions.
 
 # Prerequisites
 
-- Rust 1.89+ (pinned via `rust-toolchain.toml`)
+- Rust 1.94 (pinned via `rust-toolchain.toml`, matching Hyperlight 0.18.0)
 - `cargo-hyperlight`: install with `cargo install cargo-hyperlight`
 
 # How to run?
+
+The host and guest use Hyperlight 0.18.0. Rebuild and copy the guest when upgrading:
+older guest binaries are incompatible with the new host/guest transport.
 
 ```bash
 # 1. Build the guest binary
@@ -71,6 +78,7 @@ To spawn a Hyperlight VM and attach a debugger to it, you:
   cd demo-main
   cargo run --features gdb
   ```
+   Use a debug host build: Hyperlight 0.18.0 disables GDB support in release builds.
 4. Open a separate terminal and send an HTTP request to the demo server to spawn a cold Hyperlight VM:
   ```
   curl http://localhost:3030/hyperlight/hello-world/cold
