@@ -20,11 +20,12 @@ pub(crate) fn deref_raw_null_ptr() -> impl Filter<Extract=impl warp::Reply, Erro
             };
             // `sandbox_guard` goes out of scope here and is dropped
 
-            // Release the sandbox back to the pool
-            release_sandbox(sandbox).await;
-
             match result {
-                Ok(_) => Ok::<_, warp::Rejection>("Guest function called inside warm Hyperlight VM.".to_string()),
+                Ok(_) => {
+                    release_sandbox(sandbox).await;
+                    Ok::<_, warp::Rejection>("Guest function called inside warm Hyperlight VM.".to_string())
+                },
+                // A guest abort poisons the sandbox; do not put it back in the pool.
                 Err(err) => Ok(format!("{:?}", err)),
             }
         })

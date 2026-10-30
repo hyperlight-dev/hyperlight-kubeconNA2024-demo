@@ -6,10 +6,9 @@ extern crate alloc;
 use alloc::{string::ToString, vec::Vec};
 use hyperlight_common::flatbuffer_wrappers::{
     function_call::FunctionCall,
-    function_types::{ParameterType, ParameterValue, ReturnType},
+    function_types::{ParameterType, ParameterValue, ReturnType, ReturnValue},
     guest_error::ErrorCode,
 };
-use hyperlight_common::flatbuffer_wrappers::util::get_flatbuffer_result;
 
 use hyperlight_guest_bin::{
     guest_function::definition::{GuestFunc, GuestFunctionDefinition},
@@ -19,23 +18,25 @@ use hyperlight_guest_bin::{
 
 use hyperlight_guest::error::HyperlightGuestError;
 
-fn dereference_raw_null_pointer(_: FunctionCall) -> hyperlight_guest::error::Result<Vec<u8>> {
-    let null_pointer: *const u8 = core::ptr::null();
-    let _res = unsafe { *null_pointer };
-    Ok(get_flatbuffer_result(()))
+fn dereference_raw_null_pointer(_: FunctionCall) -> hyperlight_guest::error::Result<ReturnValue> {
+    // Force an actual null read without Rust UB letting the optimizer remove it.
+    unsafe {
+        core::arch::asm!("mov al, byte ptr [0]", out("al") _, options(nostack, readonly));
+    }
+    Ok(ReturnValue::Void(()))
 }
 
-fn print_output(message: &str) -> hyperlight_guest::error::Result<Vec<u8>> {
+fn print_output(message: &str) -> hyperlight_guest::error::Result<ReturnValue> {
     let result: i32 = call_host_function(
         "HostPrint",
         Some(Vec::from(&[ParameterValue::String(message.to_string())])),
         ReturnType::Int,
     )?;
 
-    Ok(get_flatbuffer_result(result))
+    Ok(ReturnValue::Int(result))
 }
 
-fn simple_print_output(function_call: FunctionCall) -> hyperlight_guest::error::Result<Vec<u8>> {
+fn simple_print_output(function_call: FunctionCall) -> hyperlight_guest::error::Result<ReturnValue> {
     if let ParameterValue::String(message) = function_call.parameters.clone().unwrap()[0].clone() {
         print_output(&message)
     } else {
@@ -66,6 +67,6 @@ pub extern "C" fn hyperlight_main() {
 }
 
 #[no_mangle]
-pub fn guest_dispatch_function(_: FunctionCall) -> hyperlight_guest::error::Result<Vec<u8>> {
-    Ok(get_flatbuffer_result(()))
+pub fn guest_dispatch_function(_: FunctionCall) -> hyperlight_guest::error::Result<ReturnValue> {
+    Ok(ReturnValue::Void(()))
 }

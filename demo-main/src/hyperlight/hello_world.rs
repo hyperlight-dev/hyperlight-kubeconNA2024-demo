@@ -8,7 +8,7 @@
 
 use warp::Filter;
 
-use hyperlight_host::{MultiUseSandbox, UninitializedSandbox};
+use hyperlight_host::{Sandbox, UninitializedSandbox};
 
 use crate::hyperlight::{acquire_sandbox, release_sandbox, SandboxError};
 
@@ -39,11 +39,11 @@ pub(crate) fn cold() -> impl Filter<Extract = impl warp::Reply, Error = warp::Re
 
             // Create a new sandbox per request
             let uninitialized_sandbox = UninitializedSandbox::new(
-                hyperlight_host::GuestBinary::FilePath(crate::DEMO_GUEST_PATH.to_string()),
+                hyperlight_host::GuestBinary::FilePath(crate::DEMO_GUEST_PATH.into()),
                 cfg,  // configuration
             )
             .unwrap();
-            let mut multi_use_sandbox: MultiUseSandbox =
+            let mut multi_use_sandbox: Sandbox =
                 uninitialized_sandbox.evolve().unwrap();
 
             let message = "Hello, World! I am executing inside of a VM :)\n".to_string();
